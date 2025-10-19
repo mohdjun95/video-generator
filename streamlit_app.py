@@ -78,8 +78,11 @@ if 'app_graph' not in st.session_state:
 if 'current_state' not in st.session_state:
     st.session_state.current_state = None
 if 'session_dir' not in st.session_state:
+    import tempfile
+    # Use system temp directory for cloud compatibility
     session_id = datetime.now().strftime('%Y%m%d_%H%M%S')
-    st.session_state.session_dir = f"/Users/m.junaid/Desktop/Firoze/v2/uploads/{session_id}"
+    base_temp = tempfile.gettempdir()
+    st.session_state.session_dir = os.path.join(base_temp, f"video_generator_{session_id}")
     os.makedirs(st.session_state.session_dir, exist_ok=True)
 
 # Header
