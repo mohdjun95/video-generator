@@ -29,79 +29,55 @@ except Exception:
     from dotenv import load_dotenv
     load_dotenv()
 
-# Authentication check
+# Simple password authentication
 def check_password():
-    """Returns `True` if the user had the correct password."""
-    
+    """Returns `True` if the user had a correct password."""
+
     def password_entered():
         """Checks whether a password entered by the user is correct."""
-        # Get credentials from secrets or env
-        allowed_users = {}
+        # Get the password from secrets or env
+        correct_password = st.secrets.get("APP_PASSWORD", os.getenv("APP_PASSWORD", ""))
         
-        # Try to get from Streamlit secrets first (cloud deployment)
-        try:
-            if "auth" in st.secrets:
-                # st.secrets["auth"] returns a dict-like object
-                allowed_users = dict(st.secrets["auth"])
-        except Exception as e:
-            pass
-        
-        # Fallback to environment variables (local development)
-        if not allowed_users:
-            auth_user = os.getenv("AUTH_USERNAME", "admin")
-            auth_pass = os.getenv("AUTH_PASSWORD", "admin123")
-            if auth_user and auth_pass:
-                allowed_users = {auth_user: auth_pass}
-        
-        username = st.session_state["username"]
-        password = st.session_state["password"]
-        
-        if username in allowed_users and allowed_users[username] == password:
+        if not correct_password:
+            st.session_state["password_correct"] = False
+            return
+            
+        if st.session_state["password"] == correct_password:
             st.session_state["password_correct"] = True
-            st.session_state["authenticated_user"] = username
-            del st.session_state["password"]  # Don't store password
+            del st.session_state["password"]  # Don't store passwords
         else:
             st.session_state["password_correct"] = False
 
-    # Return True if already authenticated
+    # Return True if the password is validated
     if st.session_state.get("password_correct", False):
         return True
 
-    # Show login form
+    # Show input for password
     st.markdown("""
         <div style='text-align: center; padding: 2rem;'>
             <h1>🎬 Real Estate Video Generator</h1>
-            <h3>Please Login to Continue</h3>
+            <h3>Please Enter Password to Continue</h3>
         </div>
     """, unsafe_allow_html=True)
     
-    # DEBUG: Show if auth is configured (remove this later)
-    with st.expander("🔧 Debug Info (for troubleshooting)"):
-        try:
-            if "auth" in st.secrets:
-                st.success("✅ Auth section found in secrets")
-                st.write("Configured users:", list(st.secrets["auth"].keys()))
-            else:
-                st.warning("⚠️ No auth section in secrets - using environment variables")
-                st.write(f"ENV Username: {os.getenv('AUTH_USERNAME', 'Not set')}")
-        except Exception as e:
-            st.error(f"Error reading secrets: {str(e)}")
-    
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.text_input("Username", key="username", placeholder="Enter username")
-        st.text_input("Password", type="password", key="password", placeholder="Enter password")
-        st.button("Login", on_click=password_entered, type="primary", use_container_width=True)
-    
-    # Show error if login failed
-    if "password_correct" in st.session_state and not st.session_state["password_correct"]:
-        st.error("😕 Username or password incorrect")
+        st.text_input(
+            "Password", 
+            type="password", 
+            on_change=password_entered, 
+            key="password",
+            placeholder="Enter password"
+        )
+        
+        if "password_correct" in st.session_state and not st.session_state["password_correct"]:
+            st.error("😕 Incorrect password")
     
     return False
 
-# Check authentication before showing app
+# Check password before running the app
 if not check_password():
-    st.stop()  # Stop here if not authenticated
+    st.stop()
 
 # Custom CSS
 st.markdown("""

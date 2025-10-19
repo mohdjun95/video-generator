@@ -22,10 +22,8 @@ LANGCHAIN_API_KEY = "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"
 LANGCHAIN_PROJECT = "pr-enchanted-sticker-67"
 LANGCHAIN_TRACING_V2 = "true"
 
-# Authentication - CHANGE THESE PASSWORDS!
-[auth]
-admin = "ChangeMeToSecurePassword123"
-firoze = "AnotherSecurePassword456"
+# Simple Password Authentication - CHANGE THIS PASSWORD!
+APP_PASSWORD = "YourSecurePassword123"
 ```
 
 ---
@@ -33,15 +31,14 @@ firoze = "AnotherSecurePassword456"
 ## ⚠️ IMPORTANT
 
 ### Before Saving:
-1. ✅ Replace `"ChangeMeToSecurePassword123"` with your actual password
-2. ✅ Replace `"AnotherSecurePassword456"` with another password
-3. ✅ Make passwords strong (letters + numbers + symbols)
-4. ✅ Don't share passwords via email or chat
+1. ✅ Replace `"YourSecurePassword123"` with your actual password
+2. ✅ Make password strong (letters + numbers + symbols)
+3. ✅ Don't share password via email or chat
 
 ### After Saving:
 - App will restart automatically (~30-60 seconds)
-- Login screen will appear when you visit the app
-- Use username: `admin` or `firoze` with the passwords you set
+- Password screen will appear when you visit the app
+- Enter the password you set to access the app
 
 ---
 
@@ -54,9 +51,9 @@ firoze = "AnotherSecurePassword456"
 
 ### "Username/password not working"
 - Check for typos in Streamlit Cloud secrets
-- Passwords are case-sensitive!
-- Make sure `[auth]` section is included
-- Verify no extra spaces before/after passwords
+- Password is case-sensitive!
+- Make sure `APP_PASSWORD` is set
+- Verify no extra spaces before/after password
 
 ### "App shows error page"
 - Check app logs in Streamlit Cloud dashboard
@@ -65,23 +62,29 @@ firoze = "AnotherSecurePassword456"
 
 ---
 
-## 📝 Current Users Configured
+## � Managing Access
+
+### Change Password
+In Streamlit Cloud Secrets, just update the password:
+```toml
+APP_PASSWORD = "NewSecurePassword456"
+```
+
+### Disable Authentication Temporarily
+Remove or comment out the password line:
+```toml
+# APP_PASSWORD = "password123"
+```
+
+---
+
+## 📝 Current Setup
 
 After you save the secrets above, you'll have:
 
-| Username | Password | Notes |
-|----------|----------|-------|
-| `admin` | (You set this) | Main admin account |
-| `firoze` | (You set this) | Secondary account |
+**Single password access** - One password protects the entire app
 
-You can add more users by adding more lines under `[auth]`:
-```toml
-[auth]
-admin = "password1"
-firoze = "password2"
-colleague1 = "password3"
-colleague2 = "password4"
-```
+You can share this password with authorized users securely.
 
 ---
 
@@ -91,9 +94,9 @@ After updating secrets:
 
 1. ✅ App restarts (check status in Streamlit Cloud)
 2. ✅ Visit your app URL
-3. ✅ See login screen with username/password fields
-4. ✅ Enter username and password
-5. ✅ Successfully log in and see the app
+3. ✅ See password entry screen
+4. ✅ Enter the password
+5. ✅ Successfully access the app
 
 **If all steps pass, you're done!** 🎉
 
