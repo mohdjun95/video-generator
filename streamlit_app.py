@@ -52,6 +52,28 @@ def check_password():
     if st.session_state.get("password_correct", False):
         return True
 
+    # Check if password is even configured
+    correct_password = st.secrets.get("APP_PASSWORD", os.getenv("APP_PASSWORD", ""))
+    
+    if not correct_password:
+        # NO PASSWORD CONFIGURED - SHOW ERROR
+        st.error("🚨 **SECURITY WARNING: No password configured!**")
+        st.warning("This app is currently accessible to anyone without authentication.")
+        st.markdown("""
+        ### 🔒 To Fix This:
+        1. Go to: **Streamlit Cloud → Your App → Settings → Secrets**
+        2. Add this line to your secrets:
+        ```toml
+        APP_PASSWORD = "YourSecurePassword123"
+        ```
+        3. Click **Save**
+        4. Wait for app to restart
+        
+        **Until you do this, the app will remain unprotected!**
+        """)
+        st.stop()  # Stop the app if no password configured
+        return False
+
     # Show input for password
     st.markdown("""
         <div style='text-align: center; padding: 2rem;'>
@@ -59,17 +81,6 @@ def check_password():
             <h3>Please Enter Password to Continue</h3>
         </div>
     """, unsafe_allow_html=True)
-    
-    # Debug: Check if password is configured
-    with st.expander("🔧 Debug - Why isn't this working?"):
-        correct_password = st.secrets.get("APP_PASSWORD", os.getenv("APP_PASSWORD", ""))
-        if correct_password:
-            st.success(f"✅ Password is configured (length: {len(correct_password)} characters)")
-            st.info("If you're seeing this, the password screen SHOULD be working. Try entering the password above.")
-        else:
-            st.error("❌ APP_PASSWORD is NOT set in Streamlit Cloud secrets!")
-            st.warning("Go to: Streamlit Cloud → Your App → Settings → Secrets")
-            st.code('APP_PASSWORD = "YourPassword123"', language="toml")
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
