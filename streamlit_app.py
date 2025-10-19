@@ -7,6 +7,14 @@ from langgraph.checkpoint.memory import MemorySaver
 from PIL import Image
 import time
 
+# Page config MUST be first Streamlit command
+st.set_page_config(
+    page_title="Real Estate Video Generator",
+    page_icon="🎬",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 # Configure environment variables for cloud deployment
 # Streamlit Cloud uses st.secrets, local development uses .env
 try:
@@ -77,14 +85,6 @@ def check_password():
 # Check authentication before showing app
 if not check_password():
     st.stop()  # Stop here if not authenticated
-
-# Page config
-st.set_page_config(
-    page_title="Real Estate Video Generator",
-    page_icon="🎬",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # Custom CSS
 st.markdown("""
