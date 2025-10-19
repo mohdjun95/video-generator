@@ -157,8 +157,12 @@ def process_images_with_fal(state: GraphState) -> dict:
         
         except Exception as e:
             print(f"Error uploading agent picture: {e}")
-            # Use default if upload fails
-            current_state["picture_source"] = "https://creatomate.com/files/assets/08322d05-9717-402a-b267-5f49fb511f95"
+            # Use empty string to let Creatomate template use its default image
+            current_state["picture_source"] = ""
+    else:
+        # No agent picture uploaded - use empty string to let template use default
+        print("No agent picture uploaded - Creatomate template will use default image")
+        current_state["picture_source"] = ""
     
     return current_state
 
@@ -182,12 +186,19 @@ def prepare_creatomate_payload(state: GraphState) -> dict:
         "Address.text": state.address,
         "Details-1.text": state.details_1,
         "Details-2.text": state.details_2,
-        "Picture.source": state.picture_source,
         "Email.text": state.email,
         "Phone-Number.text": state.phone_number,
         "Brand-Name.text": state.brand_name,
         "Name.text": state.agent_name
     })
+    
+    # Only add Picture.source if user uploaded an agent picture
+    # Empty string lets Creatomate template use its default image
+    if state.picture_source:
+        modifications["Picture.source"] = state.picture_source
+        print(f"Adding custom agent picture to payload.")
+    else:
+        print("No agent picture - template will use default image.")
 
     print("--- Payload Prepared ---")
     
