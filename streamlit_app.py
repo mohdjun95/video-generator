@@ -60,6 +60,17 @@ def check_password():
         </div>
     """, unsafe_allow_html=True)
     
+    # Debug: Check if password is configured
+    with st.expander("🔧 Debug - Why isn't this working?"):
+        correct_password = st.secrets.get("APP_PASSWORD", os.getenv("APP_PASSWORD", ""))
+        if correct_password:
+            st.success(f"✅ Password is configured (length: {len(correct_password)} characters)")
+            st.info("If you're seeing this, the password screen SHOULD be working. Try entering the password above.")
+        else:
+            st.error("❌ APP_PASSWORD is NOT set in Streamlit Cloud secrets!")
+            st.warning("Go to: Streamlit Cloud → Your App → Settings → Secrets")
+            st.code('APP_PASSWORD = "YourPassword123"', language="toml")
+    
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.text_input(
