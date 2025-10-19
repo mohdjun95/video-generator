@@ -21,6 +21,63 @@ except Exception:
     from dotenv import load_dotenv
     load_dotenv()
 
+# Authentication check
+def check_password():
+    """Returns `True` if the user had the correct password."""
+    
+    def password_entered():
+        """Checks whether a password entered by the user is correct."""
+        # Get credentials from secrets or env
+        try:
+            allowed_users = st.secrets.get("auth", {})
+            if not allowed_users:
+                # Fallback for local development
+                allowed_users = {
+                    os.getenv("AUTH_USERNAME", "admin"): os.getenv("AUTH_PASSWORD", "admin123")
+                }
+        except Exception:
+            allowed_users = {
+                os.getenv("AUTH_USERNAME", "admin"): os.getenv("AUTH_PASSWORD", "admin123")
+            }
+        
+        username = st.session_state["username"]
+        password = st.session_state["password"]
+        
+        if username in allowed_users and allowed_users[username] == password:
+            st.session_state["password_correct"] = True
+            st.session_state["authenticated_user"] = username
+            del st.session_state["password"]  # Don't store password
+        else:
+            st.session_state["password_correct"] = False
+
+    # Return True if already authenticated
+    if st.session_state.get("password_correct", False):
+        return True
+
+    # Show login form
+    st.markdown("""
+        <div style='text-align: center; padding: 2rem;'>
+            <h1>🎬 Real Estate Video Generator</h1>
+            <h3>Please Login to Continue</h3>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.text_input("Username", key="username", placeholder="Enter username")
+        st.text_input("Password", type="password", key="password", placeholder="Enter password")
+        st.button("Login", on_click=password_entered, type="primary", use_container_width=True)
+    
+    # Show error if login failed
+    if "password_correct" in st.session_state and not st.session_state["password_correct"]:
+        st.error("😕 Username or password incorrect")
+    
+    return False
+
+# Check authentication before showing app
+if not check_password():
+    st.stop()  # Stop here if not authenticated
+
 # Page config
 st.set_page_config(
     page_title="Real Estate Video Generator",
@@ -85,9 +142,19 @@ if 'session_dir' not in st.session_state:
     st.session_state.session_dir = os.path.join(base_temp, f"video_generator_{session_id}")
     os.makedirs(st.session_state.session_dir, exist_ok=True)
 
-# Header
-st.markdown('<div class="main-header">🎬 Real Estate Video Generator</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">AI-Powered Video Creation with Human-in-the-Loop Control</div>', unsafe_allow_html=True)
+# Header with logout
+col1, col2 = st.columns([4, 1])
+with col1:
+    st.markdown('<div class="main-header">🎬 Real Estate Video Generator</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-header">AI-Powered Video Creation with Human-in-the-Loop Control</div>', unsafe_allow_html=True)
+with col2:
+    st.write("")  # Spacing
+    st.write("")  # Spacing
+    if st.button("🚪 Logout", type="secondary", use_container_width=True):
+        # Clear authentication
+        st.session_state.password_correct = False
+        st.session_state.authenticated_user = None
+        st.rerun()
 
 # Progress bar
 progress_value = 0
