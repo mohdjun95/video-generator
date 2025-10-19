@@ -36,11 +36,13 @@ def process_images_with_fal(state: GraphState) -> dict:
     polls for the result, and returns the new image URLs.
     Agent picture is uploaded directly without AI processing.
     Uses caching to avoid reprocessing the same images.
+    Set DISABLE_CACHE=true in environment to force reprocessing.
     """
     CACHE_FILE = "fal_results_cache.json"
+    DISABLE_CACHE = os.getenv("DISABLE_CACHE", "false").lower() == "true"
     
-    # Try to load cached results first
-    if os.path.exists(CACHE_FILE):
+    # Try to load cached results first (unless caching is disabled)
+    if not DISABLE_CACHE and os.path.exists(CACHE_FILE):
         print("--- Loading cached fal.ai results ---")
         with open(CACHE_FILE, "r") as f:
             cached_data = json.load(f)
@@ -73,7 +75,10 @@ def process_images_with_fal(state: GraphState) -> dict:
             print("Some images not in cache. Processing missing images...")
             processed_urls = cached_data.copy()
     else:
-        print("No cache found. Processing all images...")
+        if DISABLE_CACHE:
+            print("Cache disabled - Processing all images fresh...")
+        else:
+            print("No cache found. Processing all images...")
         processed_urls = {}
     
     if not FAL_KEY:
