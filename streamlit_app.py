@@ -132,7 +132,7 @@ with st.sidebar:
     st.header("👤 Agent Information")
     
     agent_name = st.text_input("Agent Name", value="Build Masters Constructions")
-    brand_name = st.text_input("Brand/Company Name", value="Build Masters Constructions")
+    brand_name = st.text_input("Brand/Company Name", value=" ")
     email = st.text_input("Contact Email", value="buildmasters.const@gmail.com")
     phone = st.text_input("Contact Phone", value="+91 72042 82221")
     
