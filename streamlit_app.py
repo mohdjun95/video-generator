@@ -188,6 +188,9 @@ st.divider()
 if len(uploaded_files) == 5 and not st.session_state.workflow_started:
     if st.button("🚀 Start AI Processing", type="primary", use_container_width=True):
         with st.spinner("Saving images and starting workflow..."):
+            # Ensure session directory exists
+            os.makedirs(st.session_state.session_dir, exist_ok=True)
+            
             # Save property images
             input_images = {}
             for idx, uploaded_file in enumerate(uploaded_files, 1):
