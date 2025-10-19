@@ -144,9 +144,11 @@ with col2:
     st.write("")  # Spacing
     st.write("")  # Spacing
     if st.button("🚪 Logout", type="secondary", use_container_width=True):
-        # Clear authentication
+        # Clear authentication and reset session
         st.session_state.password_correct = False
-        st.session_state.authenticated_user = None
+        # Clear all session state to start fresh
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
         st.rerun()
 
 # Progress bar
