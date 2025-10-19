@@ -36,17 +36,22 @@ def check_password():
     def password_entered():
         """Checks whether a password entered by the user is correct."""
         # Get credentials from secrets or env
+        allowed_users = {}
+        
+        # Try to get from Streamlit secrets first (cloud deployment)
         try:
-            allowed_users = st.secrets.get("auth", {})
-            if not allowed_users:
-                # Fallback for local development
-                allowed_users = {
-                    os.getenv("AUTH_USERNAME", "admin"): os.getenv("AUTH_PASSWORD", "admin123")
-                }
-        except Exception:
-            allowed_users = {
-                os.getenv("AUTH_USERNAME", "admin"): os.getenv("AUTH_PASSWORD", "admin123")
-            }
+            if "auth" in st.secrets:
+                # st.secrets["auth"] returns a dict-like object
+                allowed_users = dict(st.secrets["auth"])
+        except Exception as e:
+            pass
+        
+        # Fallback to environment variables (local development)
+        if not allowed_users:
+            auth_user = os.getenv("AUTH_USERNAME", "admin")
+            auth_pass = os.getenv("AUTH_PASSWORD", "admin123")
+            if auth_user and auth_pass:
+                allowed_users = {auth_user: auth_pass}
         
         username = st.session_state["username"]
         password = st.session_state["password"]
@@ -69,6 +74,18 @@ def check_password():
             <h3>Please Login to Continue</h3>
         </div>
     """, unsafe_allow_html=True)
+    
+    # DEBUG: Show if auth is configured (remove this later)
+    with st.expander("🔧 Debug Info (for troubleshooting)"):
+        try:
+            if "auth" in st.secrets:
+                st.success("✅ Auth section found in secrets")
+                st.write("Configured users:", list(st.secrets["auth"].keys()))
+            else:
+                st.warning("⚠️ No auth section in secrets - using environment variables")
+                st.write(f"ENV Username: {os.getenv('AUTH_USERNAME', 'Not set')}")
+        except Exception as e:
+            st.error(f"Error reading secrets: {str(e)}")
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
