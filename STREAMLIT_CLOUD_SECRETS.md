@@ -67,13 +67,7 @@ APP_PASSWORD = "YourSecurePassword123"
 ### Change Password
 In Streamlit Cloud Secrets, just update the password:
 ```toml
-APP_PASSWORD = "NewSecurePassword456"
-```
 
-### Disable Authentication Temporarily
-Remove or comment out the password line:
-```toml
-# APP_PASSWORD = "password123"
 ```
 
 ---
