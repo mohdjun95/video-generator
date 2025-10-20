@@ -36,15 +36,22 @@ def check_password():
     def password_entered():
         """Checks whether a password entered by the user is correct."""
         # Get the password from secrets or env
-        correct_password = st.secrets.get("APP_PASSWORD", os.getenv("APP_PASSWORD", ""))
+        try:
+            correct_password = st.secrets.get("APP_PASSWORD", "")
+        except Exception:
+            correct_password = ""
+        
+        if not correct_password:
+            correct_password = os.getenv("APP_PASSWORD", "")
         
         if not correct_password:
             st.session_state["password_correct"] = False
             return
             
-        if st.session_state["password"] == correct_password:
+        if st.session_state.get("password", "") == correct_password:
             st.session_state["password_correct"] = True
-            del st.session_state["password"]  # Don't store passwords
+            if "password" in st.session_state:
+                del st.session_state["password"]  # Don't store passwords
         else:
             st.session_state["password_correct"] = False
 
@@ -53,7 +60,13 @@ def check_password():
         return True
 
     # Check if password is even configured
-    correct_password = st.secrets.get("APP_PASSWORD", os.getenv("APP_PASSWORD", ""))
+    try:
+        correct_password = st.secrets.get("APP_PASSWORD", "")
+    except Exception:
+        correct_password = ""
+    
+    if not correct_password:
+        correct_password = os.getenv("APP_PASSWORD", "")
     
     if not correct_password:
         # NO PASSWORD CONFIGURED - SHOW ERROR
