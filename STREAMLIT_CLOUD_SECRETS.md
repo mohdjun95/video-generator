@@ -16,9 +16,9 @@
 ## 📋 Complete Secrets Configuration
 
 ```toml
-FAL_KEY = "0d6b11d4-8f1b-4c7d-8f45-3a0ed97489ae:15367343b681790d10b19d495c60579f"
-CREATOMATE_API_KEY = "0392cdddcd264a4f8d0f8d0df5bc4afa0ff8743fbe7c463fed4103d871d5f82a77fff9af757bf4fa15bf9e984c0754a8"
-LANGCHAIN_API_KEY = "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"
+FAL_KEY = "your-fal-api-key-here"
+CREATOMATE_API_KEY = "your-creatomate-api-key-here"
+LANGCHAIN_API_KEY = "your-langsmith-api-key-here"
 LANGCHAIN_PROJECT = "pr-enchanted-sticker-67"
 LANGCHAIN_TRACING_V2 = "true"
 
