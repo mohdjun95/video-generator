@@ -13,18 +13,6 @@
 
 ---
 
-## 📋 Complete Secrets Configuration
-
-```toml
-FAL_KEY = "0d6b11d4-8f1b-4c7d-8f45-3a0ed97489ae:15367343b681790d10b19d495c60579f"
-CREATOMATE_API_KEY = "0392cdddcd264a4f8d0f8d0df5bc4afa0ff8743fbe7c463fed4103d871d5f82a77fff9af757bf4fa15bf9e984c0754a8"
-LANGCHAIN_API_KEY = "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"
-LANGCHAIN_PROJECT = "pr-enchanted-sticker-67"
-LANGCHAIN_TRACING_V2 = "true"
-
-# Simple Password Authentication - CHANGE THIS PASSWORD!
-APP_PASSWORD = "YourSecurePassword123"
-```
 
 ---
 
@@ -67,13 +55,7 @@ APP_PASSWORD = "YourSecurePassword123"
 ### Change Password
 In Streamlit Cloud Secrets, just update the password:
 ```toml
-APP_PASSWORD = "NewSecurePassword456"
-```
 
-### Disable Authentication Temporarily
-Remove or comment out the password line:
-```toml
-# APP_PASSWORD = "password123"
 ```
 
 ---
