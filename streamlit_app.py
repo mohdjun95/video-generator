@@ -1,11 +1,29 @@
 import streamlit as st
 import os
+import random
 from datetime import datetime
 from main import VideoGenerationWorkflow
 from state import GraphState
 from langgraph.checkpoint.memory import MemorySaver
 from PIL import Image
 import time
+
+# Music template configuration
+MUSIC_TEMPLATES = {
+    "Music 1": "6821de4e-c173-4a8f-9c8e-d8f0e3c292ed",
+    "Music 2": "fc3f9447-8030-4e94-8f28-47afa34b6935",
+    "Music 3": "6d269058-d3ae-49e7-9d9e-5d94e634a736",
+    "Music 4": "6b162577-7a21-4318-9e13-fa9ccae66a95"
+}
+
+def get_template_id(selected_music):
+    """Get template ID based on music selection."""
+    if selected_music == "Random":
+        # Randomly select one of the music templates
+        music_choice = random.choice(list(MUSIC_TEMPLATES.keys()))
+        return MUSIC_TEMPLATES[music_choice], music_choice
+    else:
+        return MUSIC_TEMPLATES[selected_music], selected_music
 
 # Page config MUST be first Streamlit command
 st.set_page_config(
@@ -208,6 +226,18 @@ st.markdown(f"**Progress: {progress_value}%**")
 with st.sidebar:
     st.header("📝 Property Details")
     
+    # Music selection dropdown
+    st.subheader("🎵 Background Music")
+    music_options = ["Random", "Music 1", "Music 2", "Music 3", "Music 4"]
+    selected_music = st.selectbox(
+        "Select Music Style",
+        options=music_options,
+        index=0,  # Default to "Random"
+        help="Choose a specific music track or let the system pick randomly"
+    )
+    
+    st.divider()
+    
     address = st.text_area(
         "Property Address",
         value="Los Angeles,\nCA 90045",
@@ -304,9 +334,16 @@ if len(uploaded_files) == 5 and not st.session_state.workflow_started:
                     f.write(agent_picture.getbuffer())
                 agent_picture_path = agent_filepath
             
+            # Get template ID based on music selection
+            template_id, actual_music = get_template_id(selected_music)
+            
+            # Show which music was selected (helpful for random selection)
+            if selected_music == "Random":
+                st.info(f"🎲 Randomly selected: {actual_music}")
+            
             # Create initial state
             initial_state = GraphState(
-                template_id="6821de4e-c173-4a8f-9c8e-d8f0e3c292ed",
+                template_id=template_id,
                 input_images=input_images,
                 address=address,
                 details_1=details_1,
