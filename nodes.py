@@ -4,7 +4,6 @@ from typing import Dict
 from state import GraphState
 import time
 import requests
-import json
 
 # Load environment variables - works for both local (.env) and cloud (already set by streamlit_app.py)
 try:
@@ -35,66 +34,17 @@ def process_images_with_fal(state: GraphState) -> dict:
     Uploads local property images, submits jobs to fal-ai/nano-banana/edit,
     polls for the result, and returns the new image URLs.
     Agent picture is uploaded directly without AI processing.
-    Uses caching to avoid reprocessing the same images.
-    Set DISABLE_CACHE=true in environment to force reprocessing.
     """
-    CACHE_FILE = "fal_results_cache.json"
-    DISABLE_CACHE = os.getenv("DISABLE_CACHE", "false").lower() == "true"
-    
-    # Try to load cached results first (unless caching is disabled)
-    if not DISABLE_CACHE and os.path.exists(CACHE_FILE):
-        print("--- Loading cached fal.ai results ---")
-        with open(CACHE_FILE, "r") as f:
-            cached_data = json.load(f)
-        
-        # Check if all required images are in cache
-        input_images = state.input_images
-        all_cached = all(placeholder in cached_data for placeholder in input_images.keys())
-        
-        if all_cached:
-            print("All images found in cache. Skipping fal.ai processing.")
-            processed_urls = {k: cached_data[k] for k in input_images.keys()}
-            
-            current_state = state.model_dump()
-            current_state["processed_image_urls"] = processed_urls
-            
-            # Upload agent picture directly (no AI processing)
-            if state.agent_picture_path and os.path.exists(state.agent_picture_path):
-                print("Uploading agent picture directly (no AI processing)...")
-                try:
-                    with open(state.agent_picture_path, "rb") as f:
-                        image_bytes = f.read()
-                    agent_url = fal_client.upload(image_bytes, content_type="image/jpeg")
-                    current_state["picture_source"] = agent_url
-                    print(f"Agent picture uploaded: {agent_url}")
-                except Exception as e:
-                    print(f"Error uploading agent picture: {e}")
-            
-            return current_state
-        else:
-            print("Some images not in cache. Processing missing images...")
-            processed_urls = cached_data.copy()
-    else:
-        if DISABLE_CACHE:
-            print("Cache disabled - Processing all images fresh...")
-        else:
-            print("No cache found. Processing all images...")
-        processed_urls = {}
-    
     if not FAL_KEY:
         print("Warning: FAL_KEY not found. Skipping image processing.")
         return {**state.model_dump(), "processed_image_urls": {}}
 
     input_images = state.input_images
+    processed_urls = {}
 
     print("--- Starting Image Processing with fal-client ---")
 
     for placeholder, file_path in input_images.items():
-        # Skip if already in cache
-        if placeholder in processed_urls:
-            print(f"Skipping '{placeholder}' (already cached)")
-            continue
-            
         if not os.path.exists(file_path):
             print(f"Warning: Image file not found at {file_path}. Skipping.")
             continue
@@ -107,7 +57,6 @@ def process_images_with_fal(state: GraphState) -> dict:
             with open(file_path, "rb") as f:
                 image_bytes = f.read()
             
-            # Add the required content_type argument
             uploaded_url = fal_client.upload(image_bytes, content_type="image/jpeg")
             print(f"File uploaded to temporary URL: {uploaded_url}")
 
@@ -138,11 +87,6 @@ def process_images_with_fal(state: GraphState) -> dict:
             print(f"An error occurred while processing image {file_path} with fal.ai: {e}")
 
     print("\n--- Finished Image Processing ---")
-    
-    # Save results to cache
-    with open(CACHE_FILE, "w") as f:
-        json.dump(processed_urls, f, indent=2)
-    print(f"Results saved to cache: {CACHE_FILE}")
     
     current_state = state.model_dump()
     current_state["processed_image_urls"] = processed_urls
